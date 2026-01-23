@@ -26,6 +26,8 @@ rule all:
         expand("{metagenome}.trim.refmap.mapassem.venn.png", metagenome=METAGENOMES),
         expand("{metagenome}.tram.upset.png", metagenome=METAGENOMES),
         expand("{metagenome}.table2.csv", metagenome=METAGENOMES),
+        expand("{metagenome}.matches.merged.sig", metagenome=METAGENOMES),
+        expand("{metagenome}.weight.png", metagenome=METAGENOMES),
 
 # assemble trimmed reads
 rule assembly:
@@ -141,3 +143,25 @@ rule table_content:
         ./summarize-ref-assembly.py -t ../ -o {output.csv} {wildcards.metagenome} > {output.txt}
     """
 
+# for the upset plot
+rule merge_gather_matches:
+    input: "../grist/outputs/gather/{metagenome}.matches.sig.zip",
+    output: "{metagenome}.matches.merged.sig",
+    shell: """
+        sourmash sig merge {input} -o {output} -k 31 --set-name {wildcards.metagenome}
+    """
+
+# weighted_upset diagram
+rule weighted_Upset:
+    input:
+        trim = "../grist/outputs/sigs/{metagenome}.trim.sig.zip",
+        assembly = "{metagenome}.megahit.fa.gz.sig",
+        mapassem = "{metagenome}.x.ma.fq.gz.sig",
+        match_merge = "{metagenome}.matches.merged.sig",
+    output:
+        weighted= "{metagenome}.weight.png",
+    conda: "env-workflow.yml"
+    shell: """
+        sourmash scripts weighted_upset {input.trim} {input.assembly} {input.mapassem} \
+        {input.match_merge} -o {output} --show-percentages —force
+    """
