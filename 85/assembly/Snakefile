@@ -163,5 +163,6 @@ rule weighted_Upset:
     conda: "env-workflow.yml"
     shell: """
         sourmash scripts weighted_upset {input.trim} {input.assembly} {input.mapassem} \
-        {input.match_merge} -o {output} --show-percentages —force
+        {input.match_merge} -o {output} --show-percentages --force
     """
+
