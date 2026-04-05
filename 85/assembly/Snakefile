@@ -25,7 +25,7 @@ rule all:
         expand("../grist/outputs/mapping/{metagenome}.refmapped.sig.zip", metagenome=METAGENOMES),
         expand("{metagenome}.trim.refmap.mapassem.venn.png", metagenome=METAGENOMES),
         expand("{metagenome}.tram.upset.png", metagenome=METAGENOMES),
-        expand("{metagenome}.table2.csv", metagenome=METAGENOMES),
+        expand("{metagenome}.table.csv", metagenome=METAGENOMES),
         expand("{metagenome}.matches.merged.sig", metagenome=METAGENOMES),
         expand("{metagenome}.weight.png", metagenome=METAGENOMES),
 
@@ -136,7 +136,7 @@ rule table_content:
         assembly = "{metagenome}.megahit.fa.gz.sig",
         mapassem = "{metagenome}.x.ma.fq.gz.sig",
     output:
-        csv = "{metagenome}.table2.csv",
+        csv = "{metagenome}.table.csv",
         txt = "{metagenome}.table.txt",
     conda: "env-workflow.yml"
     shell: """
@@ -148,7 +148,7 @@ rule merge_gather_matches:
     input: "../grist/outputs/gather/{metagenome}.matches.sig.zip",
     output: "{metagenome}.matches.merged.sig",
     shell: """
-        sourmash sig merge {input} -o {output} -k 31 --set-name {wildcards.metagenome}
+        sourmash sig merge {input} -o {output} -k 31 --set-name {wildcards.metagenome}.matches
     """
 
 # weighted_upset diagram
